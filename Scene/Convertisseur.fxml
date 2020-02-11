@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="266.0" prefWidth="487.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controleur">
+  <children>
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Button fx:id="search" layoutX="154.0" layoutY="51.0" mnemonicParsing="false" onAction="#choose" prefHeight="35.0" prefWidth="179.0" text="Veuillez selectionner un fichier" />
+            <Button fx:id="convert" layoutX="178.0" layoutY="165.0" mnemonicParsing="false" onAction="#conversion" prefHeight="17.0" prefWidth="131.0" text="Convertir" />
+            <Text fx:id="label" layoutX="98.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="290.13671875" />
+         </children>
+    </AnchorPane>
+  </children>
+</VBox>
