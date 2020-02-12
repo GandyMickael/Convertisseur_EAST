@@ -60,14 +60,12 @@ public class Controleur implements Initializable{
 		f = fc.showOpenDialog(null);
 		if(f!=null){
 			label.setText("Fichier selectionné : "+f.getAbsolutePath());
-			//System.out.println(xmltoString());
+			
 		}
 	}
 	
 	@FXML
 	public void conversion() throws IOException, SAXException, ParserConfigurationException, TransformerException{
-		//String st = xmltoString();
-		//st = st.replaceAll("\\baxe\\b", "sword");
 		FileChooser fileChooser = new FileChooser();
 		 
         //Set extension filter for text files
@@ -78,9 +76,7 @@ public class Controleur implements Initializable{
         File file = fileChooser.showSaveDialog(null);
         
         if (file != null) {
-        	//Files.copy(f.toPath(), file.toPath());
-			//saveTextToFile(st,file);
-        	test(f,file);
+        	saveXMLfile(f,file);
         	valid.setText("Fichier converti et sauvegardé");
         }
         else{
@@ -89,39 +85,7 @@ public class Controleur implements Initializable{
 		
 	}
 	
-	public String xmltoString(){
-		String st=null;
-		if(f==null){
-			label.setText("Aucun fichier sélectionné.");
-		}
-		else{
-			try{
-				DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-				InputSource is = new InputSource(f.getAbsolutePath());
-				Document document = docBuilderFactory.newDocumentBuilder().parse(is);
-				StringWriter sw = new StringWriter();
-				Transformer serializer = TransformerFactory.newInstance().newTransformer();
-				serializer.transform(new DOMSource(document), new StreamResult(sw));
-				st=sw.toString();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}		
-		}
-		return st;	
-	}
-	
-	private void saveTextToFile(String content, File file) {
-        try {
-            PrintWriter writer;
-            writer = new PrintWriter(file);
-            writer.println(content);
-            writer.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Controleur.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-	public void test(File old_file, File dest){
+	public void saveXMLfile(File old_file, File dest){
 		try
 	    {
 		    File nfile = new File(dest.getAbsolutePath());
@@ -132,17 +96,12 @@ public class Controleur implements Initializable{
 		        oldtext += line + "\r\n";
 		    }
 		    reader.close();
-		    // replace a word in a file
-		    String newtext = oldtext.replaceAll("•", "?");
-		    newtext = newtext.replaceAll("–", "?");
-		    newtext = newtext.replaceAll("’", "'");
-		    newtext = newtext.replaceAll("&apos;", "'");
-		    newtext = newtext.replaceAll("«", "\"");
-		    newtext = newtext.replaceAll("»", "\"");
-		    newtext = Normalizer.normalize(newtext, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
-		    System.out.println(newtext);
+		    //Normalize
+		    String newtext = toEAST(oldtext);
+		    
 		    //To replace a line in a file
 		    //String newtext = oldtext.replaceAll("This is test string 20000", "blah blah blah");
+		    
 		    FileWriter writer = new FileWriter(nfile.getAbsolutePath());
 		    writer.write(newtext);writer.close();
 		}
@@ -150,6 +109,52 @@ public class Controleur implements Initializable{
 		    {
 		    ioe.printStackTrace();
 		}
+	}
+	
+	public String toEAST(String content){
+		//Caractères spéciaux
+		content = content.replaceAll("•", "?");
+		content = content.replaceAll("–", "?");
+		content = content.replaceAll("’", "'");
+		content = content.replaceAll("&apos;", "'");
+		content = content.replaceAll("«", "\"");
+		content = content.replaceAll("»", "\"");
+		
+		//Balises
+		/*content = content.replaceAll("<text:span text:style-name=\"T4\">", "<TITRE>");
+		content = content.replaceAll("<text:span text:style-name=\"T5\">", "<TITRE>");
+		content = content.replaceAll("<text:span text:style-name=\"T6\">", "<TITRE>");*/
+		content = content.replaceAll("<draw:page ", "<PARTIE ");
+		content = content.replaceAll("</draw:page>", "</PARTIE>");
+		content = content.replaceAll("<draw:plugin ", "<video autoplay=\"true\" fichier =\"\" hauteur=\"50\" larger=\"50\" ");
+		content = content.replaceAll("</draw:plugin>", "</video>");
+		content = content.replaceAll("<text:list ", "<LISTE ");
+		content = content.replaceAll("</text:list>", "</LISTE>");
+		content = content.replaceAll("<text:list-item>", "<EL>");
+		content = content.replaceAll("</text:list-item>", "</EL>");
+		content = content.replaceAll("<table:table-cell>", "<LI><CI>");
+		content = content.replaceAll("</table:table-cell>", "</CI></LI>");
+		content = content.replaceAll("<table:table>", "<tableau>");
+		content = content.replaceAll("</table:table>", "</tableau>");
+		content = content.replaceAll("<text:span ", "<paragraphe ");
+		content = content.replaceAll("</text:span>", "</paragraphe>");
+		content = content.replaceAll("<draw:frame ", "<envimage ");
+		content = content.replaceAll("</draw:frame>", "</envimage>");
+		content = content.replaceAll("<dc:date>", "<date>");
+		content = content.replaceAll("</dc:date>", "</date>");
+		content = content.replaceAll("<text:p>", "<commentaire>");
+		content = content.replaceAll("<text:p ", "<commentaire ");
+		content = content.replaceAll("</text:p>", "</commentaire>");
+		content = content.replaceAll("<draw:image ", "<image ");
+		content = content.replaceAll("</draw:image>", "</image>");
+		content = content.replaceAll("<text:a ", "<lien_ interne ");
+		content = content.replaceAll("</text:a>", "</lien_ interne>");
+		content = content.replaceAll("<draw:equation ", "<equation ");
+		
+		//Accents
+		content = Normalizer.normalize(content, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
+		
+		return content;
 	}
 	
 }
