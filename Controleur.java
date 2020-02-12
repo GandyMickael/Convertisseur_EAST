@@ -1,15 +1,19 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.Normalizer;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,9 +66,8 @@ public class Controleur implements Initializable{
 	
 	@FXML
 	public void conversion() throws IOException, SAXException, ParserConfigurationException, TransformerException{
-		String st = xmltoString();
+		//String st = xmltoString();
 		//st = st.replaceAll("\\baxe\\b", "sword");
-		
 		FileChooser fileChooser = new FileChooser();
 		 
         //Set extension filter for text files
@@ -75,13 +78,14 @@ public class Controleur implements Initializable{
         File file = fileChooser.showSaveDialog(null);
         
         if (file != null) {
-        	try {
-                Files.copy(f.toPath(), file.toPath());
-            } catch (IOException ex) {
-                // handle exception...
-            }
+        	//Files.copy(f.toPath(), file.toPath());
+			//saveTextToFile(st,file);
+        	test(f,file);
         	valid.setText("Fichier converti et sauvegardé");
         }
+        else{
+			label.setText("Aucun fichier sélectionné.");
+		}
 		
 	}
 	
@@ -117,4 +121,35 @@ public class Controleur implements Initializable{
             Logger.getLogger(Controleur.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+	public void test(File old_file, File dest){
+		try
+	    {
+		    File nfile = new File(dest.getAbsolutePath());
+		    BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(old_file), "UTF8"));
+		    String line = "", oldtext = "";
+		    while((line = reader.readLine()) != null)
+		        {
+		        oldtext += line + "\r\n";
+		    }
+		    reader.close();
+		    // replace a word in a file
+		    String newtext = oldtext.replaceAll("•", "?");
+		    newtext = newtext.replaceAll("–", "?");
+		    newtext = newtext.replaceAll("’", "'");
+		    newtext = newtext.replaceAll("&apos;", "'");
+		    newtext = newtext.replaceAll("«", "\"");
+		    newtext = newtext.replaceAll("»", "\"");
+		    newtext = Normalizer.normalize(newtext, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
+		    System.out.println(newtext);
+		    //To replace a line in a file
+		    //String newtext = oldtext.replaceAll("This is test string 20000", "blah blah blah");
+		    FileWriter writer = new FileWriter(nfile.getAbsolutePath());
+		    writer.write(newtext);writer.close();
+		}
+		catch (IOException ioe)
+		    {
+		    ioe.printStackTrace();
+		}
+	}
+	
 }
